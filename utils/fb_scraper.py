@@ -21,7 +21,7 @@ class CommentScraper:
         self.sorted_by_comments: List[str, DefaultDict] | None = None
 
     def get_nr_comments(self) -> int:
-        pass
+        return sum(comment[CommentScraper.COMMENTS] for id, comment in self.sorted_by_comments)
 
     def scrape(self, sources: List[str] | None = None, days_back=1) -> None:
         posts = self._get_latest_news(
