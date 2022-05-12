@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, DefaultDict
 from facebook_scraper import get_posts
 from collections import defaultdict
 import datetime
@@ -18,14 +18,14 @@ class CommentScraper:
         self.commenters = defaultdict(lambda: defaultdict(list))
         self.spam = config["spam"]
         self.sources = config["sources"]
-        self.sorted_by_comments: Tuple[str, Dict] | None = None
+        self.sorted_by_comments: List[str, DefaultDict] | None = None
 
     def get_nr_comments(self) -> int:
         pass
 
     def scrape(self, sources: List[str] | None = None, days_back=1) -> None:
         posts = self._get_latest_news(
-            self.sources if not sources else sources, 
+            self.sources if not sources else sources, # Use default sources if none are given
             days_back
         )
 
