@@ -18,7 +18,9 @@ class CommentScraper:
 
     def __init__(self,
                 config: Dict[str, List[str]],
-                commenter_data:DefaultDict[str, DefaultDict[str, List]] = defaultdict(lambda: defaultdict(list))
+                commenter_data:DefaultDict[str, DefaultDict[str, List]] = defaultdict(lambda: defaultdict(list)),
+                fb_user: str | None = None,
+                fb_pass: str | None = None
                 ) -> None:
         self._commenters = commenter_data
         self._spam = config["spam"]
@@ -26,13 +28,13 @@ class CommentScraper:
         self._sorted_by_comments: List[str, DefaultDict] | None = None
 
         load_dotenv()
-        self.user = os.getenv('FB_USER')
-        self.password = os.getenv('PASSWORD')
+        self.user = os.getenv('FB_USER') if not fb_user else fb_user
+        self.password = os.getenv('FB_PASSWORD') if not fb_pass else fb_pass
 
         if not self.user:
-            raise KeyError("Environmental variable 'FB_USER' not found in .env")
+            raise ValueError("Missing value for fb_user. Set .env variable FB_USER or pass in a valid facebook username.")
         if not self.password:
-            raise KeyError("Environmental variable 'PASSWORD' not found in .env")
+            raise ValueError("Missing value for fb_pass. Set .env variable FB_PASSWORD or pass in a valid password.")
 
     def get_nr_comments(self) -> int:
         if not self._sorted_by_comments:
