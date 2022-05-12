@@ -2,6 +2,8 @@ from typing import Dict, List, Tuple, DefaultDict
 from facebook_scraper import get_posts
 from collections import defaultdict
 import datetime
+from dotenv import load_dotenv
+import os
 
 class NoDataError(Exception):
     pass
@@ -16,17 +18,26 @@ class CommentScraper:
 
     def __init__(self,
                 config: Dict[str, List[str]],
-                commenter_data:DefaultDict[DefaultDict[List]] = defaultdict(lambda: defaultdict(list))
+                commenter_data:DefaultDict[str, DefaultDict[str, List]] = defaultdict(lambda: defaultdict(list))
                 ) -> None:
         self._commenters = commenter_data
         self._spam = config["spam"]
         self._sources = config["sources"]   
         self._sorted_by_comments: List[str, DefaultDict] | None = None
 
+        load_dotenv()
+        self.user = os.getenv('USER')
+        self.password = os.getenv('PASSWORD')
+
+        if not self.user:
+            raise KeyError("Environmental variable 'USER' not found in .env")
+        if not self.password:
+            raise KeyError("Environmental variable 'PASSWORD' not found in .env")
+
     def get_nr_comments(self) -> int:
         if not self._sorted_by_comments:
             raise NoDataError('No comments have been scraped. Use the scrape() method first.')
-        return sum(comment[CommentScraper.COMMENTS] for id, comment in self._sorted_by_comments)
+        return sum(comment[CommentScraper.NUMBER] for id, comment in self._sorted_by_comments)
     
     def get_top_commenters():
         pass
@@ -93,3 +104,4 @@ if __name__ == "__main__":
 
    scraper = CommentScraper(settings)
    scraper.scrape()
+   print(scraper.get_nr_comments())
