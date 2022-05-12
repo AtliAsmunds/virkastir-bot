@@ -1,6 +1,5 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from facebook_scraper import get_posts
-import json
 from collections import defaultdict
 import datetime
 
@@ -19,11 +18,12 @@ class CommentScraper:
         self.commenters = defaultdict(lambda: defaultdict(list))
         self.spam = config["spam"]
         self.sources = config["sources"]
+        self.sorted_by_comments: Tuple[str, Dict] | None = None
 
     def get_nr_comments(self) -> int:
         pass
 
-    def scrape(self, sources: List[str] | None = None, days_back=1):
+    def scrape(self, sources: List[str] | None = None, days_back=1) -> None:
         posts = self._get_latest_news(
             self.sources if not sources else sources, 
             days_back
@@ -32,9 +32,11 @@ class CommentScraper:
         for post in posts:
             comments = post["comments_full"]
             self._get_comments(post)
+        
+        self.sorted_by_comments = sorted(self.commenters.items(), key=lambda item: item[1][CommentScraper.NUMBER])
 
 
-    def _get_latest_news(self, sources: list, days_back=1):
+    def _get_latest_news(self, sources: list, days_back=1) -> List:
         latest = []
         stop_time = datetime.datetime.now() - datetime.timedelta(days=days_back)
         for source in sources:
@@ -49,7 +51,7 @@ class CommentScraper:
         return latest
 
 
-    def _get_comments(self, post, is_reply=False):
+    def _get_comments(self, post, is_reply=False) -> None:
         for comment in post:
             commenter_id = comment["commenter_id"]
             if commenter_id in self.spam:
