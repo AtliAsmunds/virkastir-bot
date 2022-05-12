@@ -2,3 +2,4 @@
 .env
 
 test_scraper.ipynb
+test_out.json
