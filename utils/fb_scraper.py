@@ -26,11 +26,11 @@ class CommentScraper:
         self._sorted_by_comments: List[str, DefaultDict] | None = None
 
         load_dotenv()
-        self.user = os.getenv('USER')
+        self.user = os.getenv('FB_USER')
         self.password = os.getenv('PASSWORD')
 
         if not self.user:
-            raise KeyError("Environmental variable 'USER' not found in .env")
+            raise KeyError("Environmental variable 'FB_USER' not found in .env")
         if not self.password:
             raise KeyError("Environmental variable 'PASSWORD' not found in .env")
 
@@ -61,7 +61,7 @@ class CommentScraper:
         for source in sources:
             print("Collecting comments from", source)
             for post in get_posts(
-                source, pages=40, options={"comments": True, "replies": True}
+                source, pages=40, credentials=(self.user, self.password), options={"comments": True, "replies": True}
             ):
                 if post["time"] < stop_time:
                     break
