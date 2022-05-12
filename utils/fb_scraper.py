@@ -15,17 +15,17 @@ class CommentScraper:
     NUMBER = "comment_number"
 
     def __init__(self, config: Dict[str, List[str]]) -> None:
-        self.commenters = defaultdict(lambda: defaultdict(list))
-        self.spam = config["spam"]
-        self.sources = config["sources"]
-        self.sorted_by_comments: List[str, DefaultDict] | None = None
+        self._commenters = defaultdict(lambda: defaultdict(list))
+        self._spam = config["spam"]
+        self._sources = config["sources"]
+        self._sorted_by_comments: List[str, DefaultDict] | None = None
 
     def get_nr_comments(self) -> int:
-        return sum(comment[CommentScraper.COMMENTS] for id, comment in self.sorted_by_comments)
+        return sum(comment[CommentScraper.COMMENTS] for id, comment in self._sorted_by_comments)
 
     def scrape(self, sources: List[str] | None = None, days_back=1) -> None:
         posts = self._get_latest_news(
-            self.sources if not sources else sources, # Use default sources if none are given
+            self._sources if not sources else sources, # Use default sources if none are given
             days_back
         )
 
@@ -33,7 +33,7 @@ class CommentScraper:
             comments = post["comments_full"]
             self._get_comments(post)
         
-        self.sorted_by_comments = sorted(self.commenters.items(), key=lambda item: item[1][CommentScraper.NUMBER])
+        self._sorted_by_comments = sorted(self._commenters.items(), key=lambda item: item[1][CommentScraper.NUMBER])
 
 
     def _get_latest_news(self, sources: list, days_back=1) -> List:
@@ -54,10 +54,10 @@ class CommentScraper:
     def _get_comments(self, post, is_reply=False) -> None:
         for comment in post:
             commenter_id = comment["commenter_id"]
-            if commenter_id in self.spam:
+            if commenter_id in self._spam:
                 continue
-            self.commenters[commenter_id][CommentScraper.NAME] = comment[ "commenter_name"]
-            self.commenters[commenter_id][CommentScraper.COMMENTS].append(
+            self._commenters[commenter_id][CommentScraper.NAME] = comment[ "commenter_name"]
+            self._commenters[commenter_id][CommentScraper.COMMENTS].append(
                 {
                     "text": comment["comment_text"],
                     "type": CommentScraper.TYPES[1]
@@ -67,9 +67,9 @@ class CommentScraper:
                 }
             )
             try:
-                self.commenters[commenter_id][CommentScraper.NUMBER] += 1
+                self._commenters[commenter_id][CommentScraper.NUMBER] += 1
             except TypeError:
-                self.commenters[commenter_id][CommentScraper.NUMBER] = 1
+                self._commenters[commenter_id][CommentScraper.NUMBER] = 1
 
             try:
                 if comment["replies"]:
