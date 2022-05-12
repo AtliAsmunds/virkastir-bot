@@ -14,14 +14,22 @@ class CommentScraper:
     TYPES = ["comment", "reply"]
     NUMBER = "comment_number"
 
-    def __init__(self, config: Dict[str, List[str]]) -> None:
-        self._commenters = defaultdict(lambda: defaultdict(list))
+    def __init__(self,
+                config: Dict[str, List[str]],
+                commenter_data:DefaultDict[DefaultDict[List]] = defaultdict(lambda: defaultdict(list))
+                ) -> None:
+        self._commenters = commenter_data
         self._spam = config["spam"]
-        self._sources = config["sources"]
+        self._sources = config["sources"]   
         self._sorted_by_comments: List[str, DefaultDict] | None = None
 
     def get_nr_comments(self) -> int:
+        if not self._sorted_by_comments:
+            raise NoDataError('No comments have been scraped. Use the scrape() method first.')
         return sum(comment[CommentScraper.COMMENTS] for id, comment in self._sorted_by_comments)
+    
+    def get_top_commenters():
+        pass
 
     def scrape(self, sources: List[str] | None = None, days_back=1) -> None:
         posts = self._get_latest_news(
@@ -31,7 +39,7 @@ class CommentScraper:
 
         for post in posts:
             comments = post["comments_full"]
-            self._get_comments(post)
+            self._get_comments(comments)
         
         self._sorted_by_comments = sorted(self._commenters.items(), key=lambda item: item[1][CommentScraper.NUMBER])
 
@@ -51,8 +59,8 @@ class CommentScraper:
         return latest
 
 
-    def _get_comments(self, post, is_reply=False) -> None:
-        for comment in post:
+    def _get_comments(self, comments, is_reply=False) -> None:
+        for comment in comments:
             commenter_id = comment["commenter_id"]
             if commenter_id in self._spam:
                 continue
@@ -76,3 +84,12 @@ class CommentScraper:
                     self._get_comments(comment["replies"], is_reply=True)
             except KeyError:
                 continue
+
+if __name__ == "__main__":
+   settings = {
+       'spam': [],
+       'sources': ['RUVfrettir']
+   }
+
+   scraper = CommentScraper(settings)
+   scraper.scrape()
