@@ -10,6 +10,7 @@ facebook-scraper = "^0.2.55"
 jupyter = "^1.0.0"
 black = "^22.3.0"
 tweepy = "^4.9.0"
+python-dotenv = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
 
