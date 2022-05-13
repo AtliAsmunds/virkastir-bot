@@ -80,6 +80,8 @@ class CommentScraper:
         
         return self._sorted_by_comments[:top]
         
+    def has_data(self) -> bool:
+        return self.get_nr_comments() > 0
 
     def scrape(self, sources: List[str] | None = None, days_back=1) -> None:
         posts = self._get_latest_news(
