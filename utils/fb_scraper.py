@@ -8,6 +8,12 @@ import os
 class NoDataError(Exception):
     pass
 
+class User:
+
+    def __init__(self, id: str, name: str) -> None:
+        self.id = id
+        self.name = name
+        self._comments: List[str, Dict[str, str]] | None = None
 
 class CommentScraper:
 
@@ -29,6 +35,7 @@ class CommentScraper:
 
         load_dotenv()
         self.user = os.getenv('FB_USER') if not fb_user else fb_user
+        print(self.user)
         self.password = os.getenv('FB_PASSWORD') if not fb_pass else fb_pass
 
         if not self.user:
@@ -41,8 +48,17 @@ class CommentScraper:
             raise NoDataError('No comments have been scraped. Use the scrape() method first.')
         return sum(comment[CommentScraper.NUMBER] for id, comment in self._sorted_by_comments)
     
-    def get_top_commenters():
-        pass
+    def get_top_commenters(self, top: int =10) -> List[Tuple[str, DefaultDict]]:
+        nr_commenters = len(self._sorted_by_comments)
+        if not self._sorted_by_comments:
+            raise NoDataError('No comments have been scraped. Use the scrape() method first.')
+        if nr_commenters < top:
+            raise IndexError(f'Commenter count of {nr_commenters}, is less than the chosen number of {top}' )
+        if top < 1:
+            raise IndexError('Invalid index')
+        
+        return self._sorted_by_comments[:top]
+        
 
     def scrape(self, sources: List[str] | None = None, days_back=1) -> None:
         posts = self._get_latest_news(
@@ -54,7 +70,7 @@ class CommentScraper:
             comments = post["comments_full"]
             self._get_comments(comments)
         
-        self._sorted_by_comments = sorted(self._commenters.items(), key=lambda item: item[1][CommentScraper.NUMBER])
+        self._sorted_by_comments = sorted(self._commenters.items(), key=lambda item: item[1][CommentScraper.NUMBER], reverse=True)
 
 
     def _get_latest_news(self, sources: list, days_back=1) -> List:
@@ -99,11 +115,16 @@ class CommentScraper:
                 continue
 
 if __name__ == "__main__":
-   settings = {
+    from pprint import pprint
+
+    settings = {
        'spam': [],
        'sources': ['RUVfrettir']
-   }
+    }
 
-   scraper = CommentScraper(settings)
-   scraper.scrape()
-   print(scraper.get_nr_comments())
+    scraper = CommentScraper(settings)
+    scraper.scrape()
+    print(scraper.get_nr_comments())
+    for id, commenter in scraper.get_top_commenters():
+        print(commenter[CommentScraper.NAME], commenter[CommentScraper.NUMBER])
+        
