@@ -26,7 +26,7 @@ scraper = CommentScraper(config)
 scraper.scrape()
 top_commenter: User = scraper.get_top_commenters(top=1)[0]
 
-text = f"Fjöldi pósta: {scraper.get_nr_comments()}\n\nVirkasti notandinn er {top_commenter} með {len(top_commenter)} comment/reply\n\n"
+text = f"Fjöldi athugasemda: {scraper.get_nr_comments()}\n\nVirkasti notandinn er {top_commenter} með {len(top_commenter)} comment/reply\n\n"
 
 random_comments = sample(top_commenter.get_comments(), len(top_commenter))
 
