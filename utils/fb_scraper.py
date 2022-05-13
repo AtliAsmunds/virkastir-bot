@@ -56,7 +56,6 @@ class CommentScraper:
 
         load_dotenv()
         self.user = os.getenv('FB_USER') if not fb_user else fb_user
-        print(self.user)
         self.password = os.getenv('FB_PASSWORD') if not fb_pass else fb_pass
 
         if not self.user:
