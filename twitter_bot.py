@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from utils.fb_scraper import CommentScraper, NoDataError, User
+from utils.fb_scraper import CommentScraper, User
 from random import sample
 import os
 import json

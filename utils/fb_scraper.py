@@ -1,7 +1,5 @@
-from cgitb import text
-from typing import Dict, List, Tuple, DefaultDict
+from typing import Dict, List, Tuple
 from facebook_scraper import get_posts
-from collections import defaultdict
 import datetime
 from dotenv import load_dotenv
 import os
@@ -52,7 +50,7 @@ class CommentScraper:
         self._commenters = commenter_data
         self._spam = config["spam"]
         self._sources = config["sources"]   
-        self._sorted_by_comments: List[str, DefaultDict] | None = None
+        self._sorted_by_comments: List[str, User] | None = None
 
         load_dotenv()
         self.user = os.getenv('FB_USER') if not fb_user else fb_user
