@@ -33,7 +33,7 @@ class User:
 
         self._comments[id] = {'text': text, 'type': type}
     
-    def get_comments(self) -> List[str]:
+    def get_comments(self) -> List[Tuple[str, str]]:
         return [(comment['type'], comment['text']) for comment in self._comments.values() ]
 
 class CommentScraper:
@@ -128,7 +128,7 @@ class CommentScraper:
             else:
                 user = self._commenters[commenter_id]
 
-            user.add_comment(comment['comment_text'],
+            user.add_comment(comment['comment_text'].replace('\n', ''),
                              'reply' if is_reply else 'comment',
                              comment['comment_id'])
 
