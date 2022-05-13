@@ -1,3 +1,4 @@
+from cgitb import text
 from typing import Dict, List, Tuple, DefaultDict
 from facebook_scraper import get_posts
 from collections import defaultdict
@@ -13,7 +14,27 @@ class User:
     def __init__(self, id: str, name: str) -> None:
         self.id = id
         self.name = name
-        self._comments: List[str, Dict[str, str]] | None = None
+        self._comments: Dict[str, Dict[str, str]] | None = None
+        self.nr_comments = 0
+        self.nr_replies = 0
+    
+    def __str__(self) -> str:
+        return f"{self.id}\t{self.name}"
+    
+    def __len__(self) -> int:
+        return self.nr_comments + self.nr_replies
+
+    def add_comment(self, text: str, type: str, id: str):
+        if not self._comments or id not in self._comments:
+            if type == 'comment':
+                self.nr_comments += 1
+            else:
+                self.nr_replies +=1
+
+        self._comments[id] = {'text': text, 'type': type}
+    
+    def get_comments(self):
+        return [(comment['type'], comment['text']) for comment in self._comments.values() ]
 
 class CommentScraper:
 
@@ -74,25 +95,32 @@ class CommentScraper:
 
 
     def _get_latest_news(self, sources: list, days_back=1) -> List:
-        latest = []
+        posts = []
         stop_time = datetime.datetime.now() - datetime.timedelta(days=days_back)
+        
         for source in sources:
             print("Collecting comments from", source)
+            
             for post in get_posts(
-                source, pages=40, credentials=(self.user, self.password), options={"comments": True, "replies": True}
+                source,
+                pages=40,
+                credentials=(self.user, self.password),
+                options={"comments": True, "replies": True}
             ):
                 if post["time"] < stop_time:
                     break
                 else:
-                    latest.append(post)
-        return latest
+                    posts.append(post)
+        return posts
 
 
     def _get_comments(self, comments, is_reply=False) -> None:
         for comment in comments:
             commenter_id = comment["commenter_id"]
+            
             if commenter_id in self._spam:
                 continue
+
             self._commenters[commenter_id][CommentScraper.NAME] = comment[ "commenter_name"]
             self._commenters[commenter_id][CommentScraper.COMMENTS].append(
                 {
@@ -103,6 +131,7 @@ class CommentScraper:
                     "id": comment["comment_id"],
                 }
             )
+            
             try:
                 self._commenters[commenter_id][CommentScraper.NUMBER] += 1
             except TypeError:
@@ -113,6 +142,7 @@ class CommentScraper:
                     self._get_comments(comment["replies"], is_reply=True)
             except KeyError:
                 continue
+
 
 if __name__ == "__main__":
     from pprint import pprint
