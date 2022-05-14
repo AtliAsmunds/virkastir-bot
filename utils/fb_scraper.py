@@ -33,7 +33,16 @@ class User:
     
     def get_comments(self) -> List[Tuple[str, str]]:
         return [(comment['type'], comment['text']) for comment in self._comments.values() ]
-
+    
+    def generate_dict(self) -> Dict[str, str | int | Dict]:
+        return {
+            'name': self.name,
+            'id': self.id,
+            'nr_comments': self.nr_comments,
+            'nr_replies': self.nr_replies,
+            'total_nr_comments': self.nr_replies + self.nr_comments,
+            'comments': self._comments
+        }
 class CommentScraper:
 
     COMMENTS = "comments"
