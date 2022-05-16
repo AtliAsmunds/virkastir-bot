@@ -151,15 +151,10 @@ if __name__ == "__main__":
 
     settings = {
        'spam': [],
-       'sources': [    "RUVfrettir",
-    "RUVohf",
-    "www.dv.is",
-    "visir.is",
-    "Kjarninn",
-    "stundin",
-    "hringbraut",
-    "Frettabladid",
-    "mbl.is"]
+       'sources': [
+           "RUVfrettir",
+            "mbl.is"
+            ]
     }
 
     scraper = CommentScraper(settings)
