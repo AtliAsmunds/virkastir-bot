@@ -66,15 +66,14 @@ class CommentScraper:
         self.password = os.getenv('FB_PASSWORD') if not fb_pass else fb_pass
 
         if not self.user:
-            raise ValueError("Missing value for fb_user. Set .env variable FB_USER or pass in a valid facebook username.")
-        if not self.password:
-            raise ValueError("Missing value for fb_pass. Set .env variable FB_PASSWORD or pass in a valid password.")
+            print('No Facebook account accessed.')
 
     def get_nr_comments(self) -> int:
         if not self._commenters:
             raise NoDataError('No comments have been scraped. Use the scrape() method first.')
-        # return sum(comment[CommentScraper.NUMBER] for id, comment in self._sorted_by_comments)
+        
         return sum(len(user) for user in self._commenters.values())
+
     
     def get_top_commenters(self, top: int =10) -> List[User]:
         nr_commenters = len(self._sorted_by_comments)
@@ -100,7 +99,6 @@ class CommentScraper:
             comments = post["comments_full"]
             self._get_comments(comments)
         
-        # self._sorted_by_comments = sorted(self._commenters.items(), key=lambda item: item[1][CommentScraper.NUMBER], reverse=True)
         self._sorted_by_comments = sorted(self._commenters.values(), key=lambda item:  len(item), reverse=True)
 
 
@@ -114,7 +112,7 @@ class CommentScraper:
             for post in get_posts(
                 source,
                 pages=40,
-                credentials=(self.user, self.password),
+                credentials=(self.user, self.password) if self.user else None,
                 options={"comments": True, "replies": True}
             ):
                 if post["time"] < stop_time:
@@ -140,22 +138,6 @@ class CommentScraper:
                              comment['comment_id'])
 
 
-            # self._commenters[commenter_id][CommentScraper.NAME] = comment[ "commenter_name"]
-            # self._commenters[commenter_id][CommentScraper.COMMENTS].append(
-            #     {
-            #         "text": comment["comment_text"],
-            #         "type": CommentScraper.TYPES[1]
-            #                     if is_reply
-            #                     else CommentScraper.TYPES[0],
-            #         "id": comment["comment_id"],
-            #     }
-            # )
-            
-            # try:
-            #     self._commenters[commenter_id][CommentScraper.NUMBER] += 1
-            # except TypeError:
-            #     self._commenters[commenter_id][CommentScraper.NUMBER] = 1
-
             try:
                 if comment["replies"]:
                     self._get_comments(comment["replies"], is_reply=True)
@@ -169,7 +151,15 @@ if __name__ == "__main__":
 
     settings = {
        'spam': [],
-       'sources': ['mbl.is']
+       'sources': [    "RUVfrettir",
+    "RUVohf",
+    "www.dv.is",
+    "visir.is",
+    "Kjarninn",
+    "stundin",
+    "hringbraut",
+    "Frettabladid",
+    "mbl.is"]
     }
 
     scraper = CommentScraper(settings)
