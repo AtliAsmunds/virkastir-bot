@@ -17,12 +17,13 @@ access_secret = os.getenv('TWITTER_SECRET_ACCESS')
 
 client = tweepy.Client(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_key, access_token_secret=access_secret)
 
+COOKIES = os.path.join(BASEDIR, 'facebook.com_cookies.txt')
 
 
 with open(CONFIG_FILE) as f:
     config = json.load(f) 
 
-scraper = CommentScraper(config)
+scraper = CommentScraper(config, cookies=COOKIES)
 scraper.scrape()
 top_commenter: User = scraper.get_top_commenters(top=1)[0]
 

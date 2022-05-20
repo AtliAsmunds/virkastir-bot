@@ -54,16 +54,21 @@ class CommentScraper:
                 config: Dict[str, List[str]],
                 commenter_data:Dict[str, User] = {},
                 fb_user: str | None = None,
-                fb_pass: str | None = None
+                fb_pass: str | None = None,
+                cookies: str | None = None
                 ) -> None:
         self._commenters = commenter_data
         self._spam = config["spam"]
         self._sources = config["sources"]   
         self._sorted_by_comments: List[str, User] | None = None
+        self.cookies_path = cookies
 
         load_dotenv()
-        self.user = os.getenv('FB_USER') if not fb_user else fb_user
-        self.password = os.getenv('FB_PASSWORD') if not fb_pass else fb_pass
+        if not self.cookies_path:
+            self.user = os.getenv('FB_USER') if not fb_user else fb_user
+            self.password = os.getenv('FB_PASSWORD') if not fb_pass else fb_pass
+        else:
+            self.user = None
 
         if not self.user:
             print('No Facebook account accessed.')
@@ -113,6 +118,7 @@ class CommentScraper:
                 source,
                 pages=40,
                 credentials=(self.user, self.password) if self.user else None,
+                cookies= self.cookies_path if self.cookies_path else None,
                 options={"comments": True, "replies": True}
             ):
                 if post["time"] < stop_time:
