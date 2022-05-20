@@ -70,7 +70,7 @@ class CommentScraper:
         else:
             self.user = None
 
-        if not self.user:
+        if not self.user and not self.cookies_path:
             print('No Facebook account accessed.')
 
     def get_nr_comments(self) -> int:
